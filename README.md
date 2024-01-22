@@ -85,3 +85,108 @@ Customize this template with your game's specific details, features, and control
 siddhuar12/siddhuar12 is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 You can click the Preview link to take a look at your changes.
 --->
+Creating a full 100-stage game involves a considerable amount of code, and it may not be practical to provide the entire code here. However, I can give you a basic structure and an idea of how to implement a game with multiple stages.
+
+```python
+import pygame
+import sys
+import random
+
+# Initialize Pygame
+pygame.init()
+
+# Constants
+WIDTH, HEIGHT = 800, 600
+BALL_RADIUS = 20
+BALL_COLOR = (255, 0, 0)
+PLATFORM_COLOR = (0, 0, 255)
+BACKGROUND_COLOR = (255, 255, 255)
+GRAVITY = 1
+JUMP_FORCE = 15
+PLATFORM_HEIGHT = 20
+PLATFORM_SPEED = 5
+PLATFORM_WIDTH = 100
+SCORE_FONT = pygame.font.Font(None, 36)
+MAX_STAGES = 100
+
+# Create the screen
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Jumping Ball Game")
+
+# Create the ball
+ball = pygame.Rect(WIDTH // 2 - BALL_RADIUS, HEIGHT // 2 - BALL_RADIUS, BALL_RADIUS * 2, BALL_RADIUS * 2)
+ball_speed_y = 0
+
+# Create the platform
+platform = pygame.Rect(WIDTH, HEIGHT - PLATFORM_HEIGHT, PLATFORM_WIDTH, PLATFORM_HEIGHT)
+
+# Initialize score and stage
+score = 0
+current_stage = 1
+
+# Main game loop
+while current_stage <= MAX_STAGES:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+        # Jump when the spacebar is pressed
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            if ball.bottom == HEIGHT:
+                ball_speed_y = -JUMP_FORCE
+
+    # Apply gravity
+    ball_speed_y += GRAVITY
+    ball.y += ball_speed_y
+
+    # Move the platform
+    platform.left -= PLATFORM_SPEED
+
+    # Reset platform when it goes off the screen
+    if platform.right < 0:
+        platform.left = WIDTH
+        platform.top = random.randint(HEIGHT // 2, HEIGHT - PLATFORM_HEIGHT)
+
+    # Check for collisions with the platform
+    if ball.colliderect(platform):
+        ball.bottom = platform.top
+        ball_speed_y = 0
+        score += 1
+
+    # Keep the ball within the screen
+    if ball.top > HEIGHT:
+        ball.top = HEIGHT
+        ball_speed_y = 0
+
+    # Bounce off the walls
+    if ball.left < 0 or ball.right > WIDTH:
+        ball_speed_y = 0
+
+    # Fill the background
+    screen.fill(BACKGROUND_COLOR)
+
+    # Draw the ball
+    pygame.draw.circle(screen, BALL_COLOR, ball.center, BALL_RADIUS)
+
+    # Draw the platform
+    pygame.draw.rect(screen, PLATFORM_COLOR, platform)
+
+    # Display the score and stage
+    score_text = SCORE_FONT.render(f"Stage: {current_stage}/{MAX_STAGES}   Score: {score}", True, (0, 0, 0))
+    screen.blit(score_text, (10, 10))
+
+    # Update the display
+    pygame.display.flip()
+
+    # Cap the frame rate
+    pygame.time.Clock().tick(60)
+
+    # Move to the next stage if the ball reaches the top
+    if ball.top <= 0:
+        current_stage += 1
+        ball.y = HEIGHT - BALL_RADIUS  # Reset ball position
+        ball_speed_y = 0  # Reset ball speed
+```
+
+ 
